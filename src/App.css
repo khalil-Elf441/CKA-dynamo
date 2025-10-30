@@ -1,0 +1,57 @@
+.App {
+  background-color: #f6f8fa;
+  min-height: 100vh;
+}
+
+.exam-card {
+  border: 1px solid #d1d5da;
+  border-radius: 6px;
+  padding: 16px;
+  margin-bottom: 16px;
+  background-color: #fff;
+}
+
+.exam-card h3 {
+  margin-top: 0;
+}
+
+.mock-list a {
+  display: block;
+  padding: 8px 0;
+  border-bottom: 1px solid #e1e4e8;
+  color: #0366d6;
+  text-decoration: none;
+}
+
+.mock-list a:hover {
+  text-decoration: underline;
+}
+
+.mock-list a:last-child {
+  border-bottom: none;
+}
+
+.exam-view {
+  background-color: #fff;
+  border: 1px solid #d1d5da;
+  border-radius: 6px;
+  padding: 24px;
+}
+
+.question {
+  margin-bottom: 24px;
+}
+
+.question h4 {
+  font-size: 1.2em;
+  font-weight: 600;
+}
+
+.terminal {
+  background-color: #24292e;
+  color: #f6f8fa;
+  padding: 16px;
+  border-radius: 6px;
+  font-family: monospace;
+  min-height: 200px;
+}
