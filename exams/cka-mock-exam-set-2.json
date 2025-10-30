@@ -1,0 +1,103 @@
+{
+  "id": "cka-mock-exam-set-2",
+  "title": "CKA Mock Exam - Set 2",
+  "mocks": [
+    {
+      "id": "mock-1",
+      "title": "Mock Exam 1",
+      "duration": 7200,
+      "questions": [
+        {
+          "id": "q1",
+          "statement": "Create a new ClusterRole named 'secret-reader' that allows users to 'get', 'watch', and 'list' secrets.",
+          "weight": "7%",
+          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\nmetadata:\n  name: secret-reader\nrules:\n- apiGroups: [\""]\n  resources: [\"secrets\"]\n  verbs: [\"get\", \"watch\", \"list\"]"
+        },
+        {
+          "id": "q2",
+          "statement": "Create a new ClusterRoleBinding named 'read-secrets-global' that binds the 'secret-reader' ClusterRole to the 'dev-group' group.",
+          "weight": "7%",
+          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\nmetadata:\n  name: read-secrets-global\nsubjects:\n- kind: Group\n  name: dev-group\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: ClusterRole\n  name: secret-reader\n  apiGroup: rbac.authorization.k8s.io"
+        },
+        {
+          "id": "q3",
+          "statement": "Create a new pod named 'multi-container-pod' with two containers: one named 'nginx' using the 'nginx' image, and another named 'redis' using the 'redis' image.",
+          "weight": "10%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: multi-container-pod\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n  - name: redis\n    image: redis"
+        },
+        {
+          "id": "q4",
+          "statement": "Create a new job named 'pi-calculation' that calculates pi to 2000 places and prints the output.",
+          "weight": "8%",
+          "solution": "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: pi-calculation\nspec:\n  template:\n    spec:\n      containers:\n      - name: pi\n        image: perl\n        command: [\"perl\",  \"-Mbignum=bpi\", \"-wle\", \"print bpi(2000)\"]\n      restartPolicy: Never\n  backoffLimit: 4"
+        },
+        {
+          "id": "q5",
+          "statement": "Create a new cron job named 'hello' that runs every minute and prints 'Hello from the cron job'.",
+          "weight": "8%",
+          "solution": "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: hello\nspec:\n  schedule: \"*/1 * * * *\"\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n          - name: hello\n            image: busybox\n            command:\n            - /bin/sh\n            - -c\n            - date; echo Hello from the cron job\n          restartPolicy: OnFailure"
+        },
+        {
+          "id": "q6",
+          "statement": "Create a new ingress resource named 'my-ingress' that directs traffic from 'hello-world.info' to the 'web-service' service on port 80.",
+          "weight": "12%",
+          "solution": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: my-ingress\nspec:\n  rules:\n  - host: hello-world.info\n    http:\n      paths:\n      - pathType: Prefix\n        path: /\n        backend:\n          service:\n            name: web-service\n            port:\n              number: 80"
+        },
+        {
+          "id": "q7",
+          "statement": "Get the IP address of the 'nginx-pod' pod.",
+          "weight": "3%",
+          "solution": "kubectl get pod nginx-pod -o wide"
+        },
+        {
+          "id": "q8",
+          "statement": "Create a new pod named 'pod-with-env' that has an environment variable named 'MY_ENV' with the value 'hello'.",
+          "weight": "5%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-env\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    env:\n    - name: MY_ENV\n      value: \"hello\""
+        },
+        {
+          "id": "q9",
+          "statement": "Create a new pod named 'pod-with-secret-env' that has an environment variable named 'SECRET_PASSWORD' that gets its value from the 'db-secret' secret and the 'password' key.",
+          "weight": "6%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-secret-env\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    env:\n    - name: SECRET_PASSWORD\n      valueFrom:\n        secretKeyRef:\n          name: db-secret\n          key: password"
+        },
+        {
+          "id": "q10",
+          "statement": "Create a new pod named 'pod-with-configmap-env' that has an environment variable named 'APP_COLOR' that gets its value from the 'app-config' config map and the 'color' key from the 'app.properties' data.",
+          "weight": "6%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-configmap-env\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    env:\n    - name: APP_COLOR\n      valueFrom:\n        configMapKeyRef:\n          name: app-config\n          key: color"
+        },
+        {
+          "id": "q11",
+          "statement": "Create a new pod named 'pod-with-volume' that mounts a volume named 'my-volume' at '/my-data'. The volume should be an 'emptyDir' volume.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-volume\n      mountPath: /my-data\n  volumes:\n  - name: my-volume\n    emptyDir: {{}}"
+        },
+        {
+          "id": "q12",
+          "statement": "Create a new pod named 'pod-with-hostpath-volume' that mounts a volume named 'my-hostpath-volume' at '/my-host-data'. The volume should be a 'hostPath' volume with a path of '/data'.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-hostpath-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-hostpath-volume\n      mountPath: /my-host-data\n  volumes:\n  - name: my-hostpath-volume\n    hostPath:\n      path: /data"
+        },
+        {
+          "id": "q13",
+          "statement": "Create a new pod named 'pod-with-pvc-volume' that mounts a volume named 'my-pvc-volume' at '/my-pvc-data'. The volume should be a 'persistentVolumeClaim' volume that uses the 'my-pvc' claim.",
+          "weight": "9%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-pvc-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-pvc-volume\n      mountPath: /my-pvc-data\n  volumes:\n  - name: my-pvc-volume\n    persistentVolumeClaim:\n      claimName: my-pvc"
+        },
+        {
+          "id": "q14",
+          "statement": "Create a new pod named 'pod-with-resource-requests' that has a resource request of 100m CPU and 128Mi memory.",
+          "weight": "5%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-resource-requests\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    resources:\n      requests:\n        memory: \"128Mi\"\n        cpu: \"100m\""
+        },
+        {
+          "id": "q15",
+          "statement": "Create a new pod named 'pod-with-liveness-probe' that has a liveness probe that runs the command 'echo hello' every 10 seconds.",
+          "weight": "7%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-liveness-probe\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    livenessProbe:\n      exec:\n        command:\n        - echo\n        - hello\n      initialDelaySeconds: 5\n      periodSeconds: 10"
+        }
+      ]
+    }
+  ]
+}
