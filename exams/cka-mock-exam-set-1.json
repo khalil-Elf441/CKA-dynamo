@@ -1,0 +1,103 @@
+{
+  "id": "cka-mock-exam-set-1",
+  "title": "CKA Mock Exam - Set 1",
+  "mocks": [
+    {
+      "id": "mock-1",
+      "title": "Mock Exam 1",
+      "duration": 7200,
+      "questions": [
+        {
+          "id": "q1",
+          "statement": "Create a Pod named 'nginx-pod' using the 'nginx:1.21' image in the 'dev' namespace. Ensure it has a resource limit of 100m CPU.",
+          "weight": "5%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx-pod\n  namespace: dev\nspec:\n  containers:\n  - name: nginx\n    image: nginx:1.21\n    resources:\n      limits:\n        cpu: \"100m\""
+        },
+        {
+          "id": "q2",
+          "statement": "Create a new deployment named 'web-server' with 3 replicas, using the 'httpd' image. Expose it via a service named 'web-service' on port 80.",
+          "weight": "10%",
+          "solution": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web-server\n  labels:\n    app: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web\n    spec:\n      containers:\n      - name: httpd\n        image: httpd\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-service\nspec:\n  selector:\n    app: web\n  ports:\n    - protocol: TCP\n      port: 80\n      targetPort: 80"
+        },
+        {
+          "id": "q3",
+          "statement": "Create a persistent volume named 'my-pv' with a capacity of 1Gi, access mode 'ReadWriteOnce', and host path '/mnt/data'. Then, create a persistent volume claim named 'my-pvc' in the 'default' namespace that requests 500Mi of storage.",
+          "weight": "15%",
+          "solution": "apiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: my-pv\nspec:\n  capacity:\n    storage: 1Gi\n  accessModes:\n    - ReadWriteOnce\n  hostPath:\n    path: \"/mnt/data\"\n---\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: my-pvc\n  namespace: default\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 500Mi"
+        },
+        {
+          "id": "q4",
+          "statement": "Create a new namespace called 'production'.",
+          "weight": "2%",
+          "solution": "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: production"
+        },
+        {
+          "id": "q5",
+          "statement": "Create a new service account named 'deploy-user' in the 'production' namespace.",
+          "weight": "3%",
+          "solution": "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: deploy-user\n  namespace: production"
+        },
+        {
+          "id": "q6",
+          "statement": "Create a role named 'pod-reader' in the 'default' namespace that allows users to 'get', 'watch', and 'list' pods.",
+          "weight": "7%",
+          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  namespace: default\n  name: pod-reader\nrules:\n- apiGroups: [\"\"]\n  resources: [\"pods\"]\n  verbs: [\"get\", \"watch\", \"list\"]"
+        },
+        {
+          "id": "q7",
+          "statement": "Create a role binding named 'read-pods' that binds the 'pod-reader' role to the 'jane' user in the 'default' namespace.",
+          "weight": "7%",
+          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: read-pods\n  namespace: default\nsubjects:\n- kind: User\n  name: jane\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: Role\n  name: pod-reader\n  apiGroup: rbac.authorization.k8s.io"
+        },
+        {
+          "id": "q8",
+          "statement": "Create a config map named 'app-config' with a key 'app.properties' and a value of 'color=blue'.",
+          "weight": "4%",
+          "solution": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  app.properties: |\n    color=blue"
+        },
+        {
+          "id": "q9",
+          "statement": "Create a secret named 'db-secret' with a key 'password' and a value of 'supersecret'.",
+          "weight": "4%",
+          "solution": "apiVersion: v1\nkind: Secret\nmetadata:\n  name: db-secret\ntype: Opaque\ndata:\n  password: c3VwZXJzZWNyZXQ="
+        },
+        {
+          "id": "q10",
+          "statement": "Create a pod named 'ubuntu-sleeper' that uses the 'ubuntu' image and runs the command 'sleep 3600'.",
+          "weight": "5%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: ubuntu-sleeper\nspec:\n  containers:\n  - name: ubuntu\n    image: ubuntu\n    command: [\"sleep\", \"3600\"]"
+        },
+        {
+          "id": "q11",
+          "statement": "Get the logs for the 'ubuntu-sleeper' pod.",
+          "weight": "2%",
+          "solution": "kubectl logs ubuntu-sleeper"
+        },
+        {
+          "id": "q12",
+          "statement": "Create a network policy named 'default-deny' in the 'default' namespace that denies all ingress traffic.",
+          "weight": "8%",
+          "solution": "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: default-deny\n  namespace: default\nspec:\n  podSelector: {}\n  policyTypes:\n  - Ingress"
+        },
+        {
+          "id": "q13",
+          "statement": "Scale the 'web-server' deployment to 5 replicas.",
+          "weight": "5%",
+          "solution": "kubectl scale deployment web-server --replicas=5"
+        },
+        {
+          "id": "q14",
+          "statement": "Taint the node 'node01' with the key 'app' and value 'blue' and the effect 'NoSchedule'.",
+          "weight": "6%",
+          "solution": "kubectl taint nodes node01 app=blue:NoSchedule"
+        },
+        {
+          "id": "q15",
+          "statement": "Create a static pod on node 'node01' that runs the 'nginx' image.",
+          "weight": "9%",
+          "solution": "On node01, create a file in /etc/kubernetes/manifests/static-web.yaml with the following content:\n\napiVersion: v1\nkind: Pod\nmetadata:\n  name: static-web\n  labels:\n    role: myrole\nspec:\n  containers:\n    - name: web\n      image: nginx\n      ports:\n        - name: web\n          containerPort: 80\n          protocol: TCP"
+        }
+      ]
+    }
+  ]
+}

@@ -1,0 +1,13 @@
+{
+  "files": {
+    "main.css": "/CKA-dynamo/static/css/main.bc793b8c.css",
+    "main.js": "/CKA-dynamo/static/js/main.81bc267a.js",
+    "index.html": "/CKA-dynamo/index.html",
+    "main.bc793b8c.css.map": "/CKA-dynamo/static/css/main.bc793b8c.css.map",
+    "main.81bc267a.js.map": "/CKA-dynamo/static/js/main.81bc267a.js.map"
+  },
+  "entrypoints": [
+    "static/css/main.bc793b8c.css",
+    "static/js/main.81bc267a.js"
+  ]
+}
