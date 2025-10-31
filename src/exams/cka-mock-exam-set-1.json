@@ -95,11 +95,7 @@
           "id": "q15",
           "statement": "Backup the etcd database for a kubeadm-created cluster. The etcd certificates are located in '/etc/kubernetes/pki/etcd'. The backup should be saved to '/tmp/etcd-backup.db'.",
           "weight": "10%",
-          "solution": "ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db \
---endpoints=https://[127.0.0.1]:2379 \
---cacert=/etc/kubernetes/pki/etcd/ca.crt \
---cert=/etc/kubernetes/pki/etcd/server.crt \
---key=/etc/kubernetes/pki/etcd/server.key"
+          "solution": "ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db \\\n--endpoints=https://[127.0.0.1]:2379 \\\n--cacert=/etc/kubernetes/pki/etcd/ca.crt \\\n--cert=/etc/kubernetes/pki/etcd/server.crt \\\n--key=/etc/kubernetes/pki/etcd/server.key"
         }
       ]
     }
