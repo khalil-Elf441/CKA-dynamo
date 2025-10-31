@@ -9,10 +9,15 @@ const Exam = () => {
   const [exam, setExam] = useState(null);
   const [showSolution, setShowSolution] = useState({});
   const [timeUp, setTimeUp] = useState(false);
+  const [terminalInputs, setTerminalInputs] = useState({});
 
   useEffect(() => {
     setExam(exams[examId]);
   }, [examId]);
+
+  const handleTerminalInputChange = (questionId, value) => {
+    setTerminalInputs(prev => ({ ...prev, [questionId]: value }));
+  };
 
   const toggleSolution = (questionId) => {
     setShowSolution(prev => ({ ...prev, [questionId]: !prev[questionId] }));
@@ -45,10 +50,15 @@ const Exam = () => {
           <h4>Question (Weight: {q.weight})</h4>
           <p>{q.statement}</p>
           <div className="terminal-container">
-            <textarea className="terminal" placeholder="# Enter your commands here..."></textarea>
+            <textarea
+              className="terminal"
+              placeholder="# Enter your commands here..."
+              value={terminalInputs[q.id] || ''}
+              onChange={(e) => handleTerminalInputChange(q.id, e.target.value)}
+            />
           </div>
           <Button variant="primary" onClick={() => toggleSolution(q.id)} className="mt-2">
-            {showSolution[q.id] ? 'Hide Solution' : 'Show Solution'}
+            {showSolution[q.id] ? 'Hide Solution' : 'Hide Solution'}
           </Button>
           {showSolution[q.id] && (
             <div className="solution mt-3">
