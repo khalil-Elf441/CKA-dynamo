@@ -11,7 +11,7 @@
           "id": "q1",
           "statement": "Create a new ClusterRole named 'secret-reader' that allows users to 'get', 'watch', and 'list' secrets.",
           "weight": "7%",
-          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\nmetadata:\n  name: secret-reader\nrules:\n- apiGroups: [\""]\n  resources: [\"secrets\"]\n  verbs: [\"get\", \"watch\", \"list\"]"
+          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\nmetadata:\n  name: secret-reader\nrules:\n- apiGroups: [\"\"]\n  resources: [\"secrets\"]\n  verbs: [\"get\", \"watch\", \"list\"]"
         },
         {
           "id": "q2",
@@ -71,7 +71,8 @@
           "id": "q11",
           "statement": "Create a new pod named 'pod-with-volume' that mounts a volume named 'my-volume' at '/my-data'. The volume should be an 'emptyDir' volume.",
           "weight": "8%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-volume\n      mountPath: /my-data\n  volumes:\n  - name: my-volume\n    emptyDir: {}",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-volume\n      mountPath: /my-data\n  volumes:\n  - name: my-volume\n    emptyDir: {}"
+        },
         {
           "id": "q12",
           "statement": "Create a new pod named 'pod-with-hostpath-volume' that mounts a volume named 'my-hostpath-volume' at '/my-host-data'. The volume should be a 'hostPath' volume with a path of '/data'.",
