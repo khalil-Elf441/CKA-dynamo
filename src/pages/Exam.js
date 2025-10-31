@@ -2,6 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { Button, Alert } from 'react-bootstrap';
 import Timer from '../components/Timer';
+import { exams } from '../data/exams';
 
 const Exam = () => {
   const { examId, mockId } = useParams();
@@ -10,9 +11,7 @@ const Exam = () => {
   const [timeUp, setTimeUp] = useState(false);
 
   useEffect(() => {
-    fetch(`/exams/${examId}.json`)
-      .then(response => response.json())
-      .then(data => setExam(data));
+    setExam(exams[examId]);
   }, [examId]);
 
   const toggleSolution = (questionId) => {
@@ -52,7 +51,7 @@ const Exam = () => {
             </div>
           </div>
           <Button variant="primary" onClick={() => toggleSolution(q.id)} className="mt-2">
-            {showSolution[q.id] ? 'Hide Solution' : 'Show Solution'}
+            {showSolution[q.id] ? 'Hide Solution' : 'Hide Solution'}
           </Button>
           {showSolution[q.id] && (
             <div className="solution mt-3">

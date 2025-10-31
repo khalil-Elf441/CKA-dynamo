@@ -33,6 +33,8 @@ jobs:
           node-version: 20
           cache: 'npm'
       - name: Install dependencies
+        # It is recommended to use 'npm ci' for faster, more reliable builds.
+        # See https://docs.npmjs.com/cli/v10/commands/npm-ci
         run: npm install
       - name: Build
         run: npm run build
