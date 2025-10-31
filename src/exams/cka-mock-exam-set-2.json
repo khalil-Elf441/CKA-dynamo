@@ -9,93 +9,93 @@
       "questions": [
         {
           "id": "q1",
-          "statement": "Create a new ClusterRole named 'secret-reader' that allows users to 'get', 'watch', and 'list' secrets.",
-          "weight": "7%",
-          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRole\nmetadata:\n  name: secret-reader\nrules:\n- apiGroups: [\"\"]\n  resources: [\"secrets\"]\n  verbs: [\"get\", \"watch\", \"list\"]"
+          "statement": "A pod named 'nginx-pod' is running on the cluster. You need to create a new pod named 'net-admin-pod' that has the 'NET_ADMIN' capability. This capability is required to perform advanced network diagnostics. The pod should use the 'busybox' image and run the command 'sleep 3600'.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: net-admin-pod\nspec:\n  containers:\n  - name: main\n    image: busybox\n    command: [\"sleep\", \"3600\"]\n    securityContext:\n      capabilities:\n        add: [\"NET_ADMIN\"]"
         },
         {
           "id": "q2",
-          "statement": "Create a new ClusterRoleBinding named 'read-secrets-global' that binds the 'secret-reader' ClusterRole to the 'dev-group' group.",
-          "weight": "7%",
-          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: ClusterRoleBinding\nmetadata:\n  name: read-secrets-global\nsubjects:\n- kind: Group\n  name: dev-group\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: ClusterRole\n  name: secret-reader\n  apiGroup: rbac.authorization.k8s.io"
+          "statement": "You are troubleshooting a networking issue. You suspect that a NetworkPolicy is blocking traffic to a pod named 'web-server'. The pod has the label 'app=web'. Write a NetworkPolicy named 'allow-web-traffic' that allows ingress traffic from any pod in the same namespace with the label 'role=frontend' to the 'web-server' pod on TCP port 80.",
+          "weight": "12%",
+          "solution": "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: allow-web-traffic\nspec:\n  podSelector:\n    matchLabels:\n      app: web\n  policyTypes:\n  - Ingress\n  ingress:\n  - from:\n    - podSelector:\n        matchLabels:\n          role: frontend\n    ports:\n    - protocol: TCP\n      port: 80"
         },
         {
           "id": "q3",
-          "statement": "Create a new pod named 'multi-container-pod' with two containers: one named 'nginx' using the 'nginx' image, and another named 'redis' using the 'redis' image.",
-          "weight": "10%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: multi-container-pod\nspec:\n  containers:\n  - name: nginx\n    image: nginx\n  - name: redis\n    image: redis"
+          "statement": "You need to create a highly available Redis cluster. Create a StatefulSet named 'redis-cluster' with 3 replicas. The StatefulSet should use the 'redis:6.2-alpine' image. Each pod should have a volume mount at '/data' that is backed by a PersistentVolumeClaim. The PersistentVolumeClaims should request 2Gi of storage from the 'fast-storage' StorageClass.",
+          "weight": "15%",
+          "solution": "apiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: redis-cluster\nspec:\n  selector:\n    matchLabels:\n      app: redis-cluster\n  serviceName: \"redis-cluster\"\n  replicas: 3\n  template:\n    metadata:\n      labels:\n        app: redis-cluster\n    spec:\n      terminationGracePeriodSeconds: 10\n      containers:\n      - name: redis\n        image: redis:6.2-alpine\n        ports:\n        - containerPort: 6379\n          name: redis\n        volumeMounts:\n        - name: data\n          mountPath: /data\n  volumeClaimTemplates:\n  - metadata:\n      name: data\n    spec:\n      accessModes: [ \"ReadWriteOnce\" ]\n      storageClassName: \"fast-storage\"\n      resources:\n        requests:\n          storage: 2Gi"
         },
         {
           "id": "q4",
-          "statement": "Create a new job named 'pi-calculation' that calculates pi to 2000 places and prints the output.",
-          "weight": "8%",
-          "solution": "apiVersion: batch/v1\nkind: Job\nmetadata:\n  name: pi-calculation\nspec:\n  template:\n    spec:\n      containers:\n      - name: pi\n        image: perl\n        command: [\"perl\",  \"-Mbignum=bpi\", \"-wle\", \"print bpi(2000)\"]\n      restartPolicy: Never\n  backoffLimit: 4"
+          "statement": "A user named 'developer-jane' needs to be able to view pods in the 'development' namespace, but should not be able to modify them. Create a Role named 'pod-viewer' and a RoleBinding named 'jane-view-pods' to grant these permissions.",
+          "weight": "10%",
+          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  namespace: development\n  name: pod-viewer\nrules:\n- apiGroups: [\"\"]\n  resources: [\"pods\"]\n  verbs: [\"get\", \"watch\", \"list\"]\n---\napiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: jane-view-pods\n  namespace: development\nsubjects:\n- kind: User\n  name: developer-jane\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: Role\n  name: pod-viewer\n  apiGroup: rbac.authorization.k8s.io"
         },
         {
           "id": "q5",
-          "statement": "Create a new cron job named 'hello' that runs every minute and prints 'Hello from the cron job'.",
-          "weight": "8%",
-          "solution": "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: hello\nspec:\n  schedule: \"*/1 * * * *\"\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n          - name: hello\n            image: busybox\n            command:\n            - /bin/sh\n            - -c\n            - date; echo Hello from the cron job\n          restartPolicy: OnFailure"
+          "statement": "You are experiencing issues with CoreDNS in your cluster. You need to view the logs for the CoreDNS pods to diagnose the problem. The CoreDNS pods are located in the 'kube-system' namespace.",
+          "weight": "5%",
+          "solution": "kubectl logs -n kube-system -l k8s-app=kube-dns"
         },
         {
           "id": "q6",
-          "statement": "Create a new ingress resource named 'my-ingress' that directs traffic from 'hello-world.info' to the 'web-service' service on port 80.",
-          "weight": "12%",
-          "solution": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: my-ingress\nspec:\n  rules:\n  - host: hello-world.info\n    http:\n      paths:\n      - pathType: Prefix\n        path: /\n        backend:\n          service:\n            name: web-service\n            port:\n              number: 80"
+          "statement": "Create a new pod named 'pod-with-probes' that has both a liveness probe and a readiness probe. The liveness probe should run the command 'cat /tmp/healthy' every 10 seconds. The readiness probe should run the command 'cat /tmp/ready' every 5 seconds.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-probes\nspec:\n  containers:\n  - name: main\n    image: busybox\n    command: [\"sh\", \"-c\", \"touch /tmp/healthy; touch /tmp/ready; sleep 3600\"]\n    livenessProbe:\n      exec:\n        command:\n        - cat\n        - /tmp/healthy\n      initialDelaySeconds: 5\n      periodSeconds: 10\n    readinessProbe:\n      exec:\n        command:\n        - cat\n        - /tmp/ready\n      initialDelaySeconds: 5\n      periodSeconds: 5"
         },
         {
           "id": "q7",
-          "statement": "Get the IP address of the 'nginx-pod' pod.",
-          "weight": "3%",
-          "solution": "kubectl get pod nginx-pod -o wide"
+          "statement": "You need to roll back a deployment named 'web-server' to its previous version.",
+          "weight": "5%",
+          "solution": "kubectl rollout undo deployment/web-server"
         },
         {
           "id": "q8",
-          "statement": "Create a new pod named 'pod-with-env' that has an environment variable named 'MY_ENV' with the value 'hello'.",
-          "weight": "5%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-env\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    env:\n    - name: MY_ENV\n      value: \"hello\""
+          "statement": "Create a new pod named 'pod-with-sidecar' that has a main container running the 'nginx' image and a sidecar container running the 'busybox' image. The sidecar container should run the command 'while true; do wget -q -O- http://localhost; sleep 10; done'.",
+          "weight": "10%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-sidecar\nspec:\n  containers:\n  - name: main\n    image: nginx\n  - name: sidecar\n    image: busybox\n    command: [\"sh\", \"-c\", \"while true; do wget -q -O- http://localhost; sleep 10; done\"]"
         },
         {
           "id": "q9",
-          "statement": "Create a new pod named 'pod-with-secret-env' that has an environment variable named 'SECRET_PASSWORD' that gets its value from the 'db-secret' secret and the 'password' key.",
-          "weight": "6%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-secret-env\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    env:\n    - name: SECRET_PASSWORD\n      valueFrom:\n        secretKeyRef:\n          name: db-secret\n          key: password"
+          "statement": "You need to find all pods on the cluster that are using more than 500Mi of memory.",
+          "weight": "7%",
+          "solution": "kubectl top pods --all-namespaces --sort-by=memory | awk '$3 ~ /Mi/ && $3 > 500 {print $0}'"
         },
         {
           "id": "q10",
-          "statement": "Create a new pod named 'pod-with-configmap-env' that has an environment variable named 'APP_COLOR' that gets its value from the 'app-config' config map and the 'color' key from the 'app.properties' data.",
-          "weight": "6%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-configmap-env\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    env:\n    - name: APP_COLOR\n      valueFrom:\n        configMapKeyRef:\n          name: app-config\n          key: color"
+          "statement": "Create a new pod named 'pod-with-init-container' that has an init container that runs the command 'sleep 10'. The main container should run the 'nginx' image.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-init-container\nspec:\n  initContainers:\n  - name: init\n    image: busybox\n    command: [\"sleep\", \"10\"]\n  containers:\n  - name: main\n    image: nginx"
         },
         {
           "id": "q11",
-          "statement": "Create a new pod named 'pod-with-volume' that mounts a volume named 'my-volume' at '/my-data'. The volume should be an 'emptyDir' volume.",
-          "weight": "8%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-volume\n      mountPath: /my-data\n  volumes:\n  - name: my-volume\n    emptyDir: {}"
+          "statement": "You need to view the certificate details for the Kubernetes API server. The API server certificate is located at '/etc/kubernetes/pki/apiserver.crt'.",
+          "weight": "5%",
+          "solution": "openssl x509 -in /etc/kubernetes/pki/apiserver.crt -text -noout"
         },
         {
           "id": "q12",
-          "statement": "Create a new pod named 'pod-with-hostpath-volume' that mounts a volume named 'my-hostpath-volume' at '/my-host-data'. The volume should be a 'hostPath' volume with a path of '/data'.",
-          "weight": "8%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-hostpath-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-hostpath-volume\n      mountPath: /my-host-data\n  volumes:\n  - name: my-hostpath-volume\n    hostPath:\n      path: /data"
+          "statement": "Create a new pod named 'pod-with-host-network' that uses the host's network namespace.",
+          "weight": "6%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-host-network\nspec:\n  hostNetwork: true\n  containers:\n  - name: main\n    image: busybox\n    command: [\"sleep\", \"3600\"]"
         },
         {
           "id": "q13",
-          "statement": "Create a new pod named 'pod-with-pvc-volume' that mounts a volume named 'my-pvc-volume' at '/my-pvc-data'. The volume should be a 'persistentVolumeClaim' volume that uses the 'my-pvc' claim.",
-          "weight": "9%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-pvc-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-pvc-volume\n      mountPath: /my-pvc-data\n  volumes:\n  - name: my-pvc-volume\n    persistentVolumeClaim:\n      claimName: my-pvc"
+          "statement": "You need to find the IP address of the 'kube-dns' service in the 'kube-system' namespace.",
+          "weight": "4%",
+          "solution": "kubectl get svc -n kube-system kube-dns"
         },
         {
           "id": "q14",
-          "statement": "Create a new pod named 'pod-with-resource-requests' that has a resource request of 100m CPU and 128Mi memory.",
-          "weight": "5%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-resource-requests\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    resources:\n      requests:\n        memory: \"128Mi\"\n        cpu: \"100m\""
+          "statement": "Create a new pod named 'pod-with-downward-api' that exposes the pod's name and namespace as environment variables.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-downward-api\nspec:\n  containers:\n  - name: main\n    image: busybox\n    command: [\"sleep\", \"3600\"]\n    env:\n    - name: POD_NAME\n      valueFrom:\n        fieldRef:\n          fieldPath: metadata.name\n    - name: POD_NAMESPACE\n      valueFrom:\n        fieldRef:\n          fieldPath: metadata.namespace"
         },
         {
           "id": "q15",
-          "statement": "Create a new pod named 'pod-with-liveness-probe' that has a liveness probe that runs the command 'echo hello' every 10 seconds.",
-          "weight": "7%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-liveness-probe\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    livenessProbe:\n      exec:\n        command:\n        - echo\n        - hello\n      initialDelaySeconds: 5\n      periodSeconds: 10"
+          "statement": "You need to restore an etcd backup located at '/tmp/etcd-backup.db'. The restored data should be placed in a new data directory at '/var/lib/etcd-restore'.",
+          "weight": "10%",
+          "solution": "ETCDCTL_API=3 etcdctl snapshot restore /tmp/etcd-backup.db --data-dir /var/lib/etcd-restore"
         }
       ]
     }

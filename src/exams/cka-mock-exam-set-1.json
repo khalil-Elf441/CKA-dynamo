@@ -9,93 +9,97 @@
       "questions": [
         {
           "id": "q1",
-          "statement": "Create a Pod named 'nginx-pod' using the 'nginx:1.21' image in the 'dev' namespace. Ensure it has a resource limit of 100m CPU.",
-          "weight": "5%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: nginx-pod\n  namespace: dev\nspec:\n  containers:\n  - name: nginx\n    image: nginx:1.21\n    resources:\n      limits:\n        cpu: \"100m\""
+          "statement": "You are tasked with upgrading a Kubernetes cluster from version 1.27.2 to 1.28.0. The cluster was bootstrapped with kubeadm. The master node is named 'master-1', and the worker node is named 'worker-1'. First, drain the master node of all workloads. Then, upgrade the control plane components on the master node. Finally, upgrade the kubelet and kubectl on the master node. Do not upgrade the worker node at this time.",
+          "weight": "15%",
+          "solution": "# On master-1\nkubectl drain master-1 --ignore-daemonsets\napt-get update && apt-get install -y kubeadm=1.28.0-00\nkubeadm upgrade plan\nkubeadm upgrade apply v1.28.0\napt-get update && apt-get install -y kubelet=1.28.0-00 kubectl=1.28.0-00\nsystemctl daemon-reload\nsystemctl restart kubelet\nkubectl uncordon master-1"
         },
         {
           "id": "q2",
-          "statement": "Create a new deployment named 'web-server' with 3 replicas, using the 'httpd' image. Expose it via a service named 'web-service' on port 80.",
-          "weight": "10%",
-          "solution": "apiVersion: apps/v1\nkind: Deployment\nmetadata:\n  name: web-server\n  labels:\n    app: web\nspec:\n  replicas: 3\n  selector:\n    matchLabels:\n      app: web\n  template:\n    metadata:\n      labels:\n        app: web\n    spec:\n      containers:\n      - name: httpd\n        image: httpd\n        ports:\n        - containerPort: 80\n---\napiVersion: v1\nkind: Service\nmetadata:\n  name: web-service\nspec:\n  selector:\n    app: web\n  ports:\n    - protocol: TCP\n      port: 80\n      targetPort: 80"
+          "statement": "Create a new StatefulSet named 'web-app' with 3 replicas. The StatefulSet should use the 'nginx:1.21' image and have a service named 'nginx' that governs it. Each pod should have a volume mount at '/usr/share/nginx/html' that is backed by a PersistentVolumeClaim. The PersistentVolumeClaims should request 1Gi of storage.",
+          "weight": "12%",
+          "solution": "apiVersion: v1\nkind: Service\nmetadata:\n  name: nginx\n  labels:\n    app: nginx\nspec:\n  ports:\n  - port: 80\n    name: web\n  clusterIP: None\n  selector:\n    app: nginx\n---\napiVersion: apps/v1\nkind: StatefulSet\nmetadata:\n  name: web-app\nspec:\n  selector:\n    matchLabels:\n      app: nginx\n  serviceName: \"nginx\"\n  replicas: 3\n  template:\n    metadata:\n      labels:\n        app: nginx\n    spec:\n      terminationGracePeriodSeconds: 10\n      containers:\n      - name: nginx\n        image: nginx:1.21\n        ports:\n        - containerPort: 80\n          name: web\n        volumeMounts:\n        - name: www\n          mountPath: /usr/share/nginx/html\n  volumeClaimTemplates:\n  - metadata:\n      name: www\n    spec:\n      accessModes: [ \"ReadWriteOnce\" ]\n      storageClassName: \"my-storage-class\"\n      resources:\n        requests:\n          storage: 1Gi"
         },
         {
           "id": "q3",
-          "statement": "Create a persistent volume named 'my-pv' with a capacity of 1Gi, access mode 'ReadWriteOnce', and host path '/mnt/data'. Then, create a persistent volume claim named 'my-pvc' in the 'default' namespace that requests 500Mi of storage.",
-          "weight": "15%",
-          "solution": "apiVersion: v1\nkind: PersistentVolume\nmetadata:\n  name: my-pv\nspec:\n  capacity:\n    storage: 1Gi\n  accessModes:\n    - ReadWriteOnce\n  hostPath:\n    path: \"/mnt/data\"\n---\napiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: my-pvc\n  namespace: default\nspec:\n  accessModes:\n    - ReadWriteOnce\n  resources:\n    requests:\n      storage: 500Mi"
+          "statement": "Create a new NetworkPolicy named 'default-deny-all' in the 'default' namespace that denies all ingress and egress traffic. Then, create another NetworkPolicy named 'allow-dns' that allows pods to make DNS requests (to port 53).",
+          "weight": "10%",
+          "solution": "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: default-deny-all\nspec:\n  podSelector: {}\n  policyTypes:\n  - Ingress\n  - Egress\n---\napiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: allow-dns\nspec:\n  podSelector: {}\n  policyTypes:\n  - Egress\n  egress:\n  - to:\n    - namespaceSelector: {}\n      podSelector:\n        k8s-app: kube-dns\n    ports:\n    - protocol: UDP\n      port: 53"
         },
         {
           "id": "q4",
-          "statement": "Create a new namespace called 'production'.",
-          "weight": "2%",
-          "solution": "apiVersion: v1\nkind: Namespace\nmetadata:\n  name: production"
+          "statement": "You are given a pod named 'troubleshoot-pod' that is in a CrashLoopBackOff state. The pod is based on the 'busybox' image and is supposed to run the command 'sleep 3600'. Find the cause of the crash and fix it.",
+          "weight": "10%",
+          "solution": "# First, get the logs of the pod to see the error\nkubectl logs troubleshoot-pod\n# The logs will likely show an error with the command. Let's check the pod definition.\nkubectl get pod troubleshoot-pod -o yaml\n# You will likely find a typo in the command, for example, 'sleeeeep 3600'.\n# To fix this, you can delete the pod and create a new one with the correct command.\nkubectl delete pod troubleshoot-pod\n# Create a new pod with the correct command:\napiVersion: v1\nkind: Pod\nmetadata:\n  name: troubleshoot-pod\nspec:\n  containers:\n  - name: busybox\n    image: busybox\n    command: [\"sleep\", \"3600\"]"
         },
         {
           "id": "q5",
-          "statement": "Create a new service account named 'deploy-user' in the 'production' namespace.",
-          "weight": "3%",
-          "solution": "apiVersion: v1\nkind: ServiceAccount\nmetadata:\n  name: deploy-user\n  namespace: production"
+          "statement": "Create a new Ingress resource named 'my-ingress' that directs traffic from 'cka-exam.com/app1' to a service named 'app1-service' on port 80, and traffic from 'cka-exam.com/app2' to a service named 'app2-service' on port 8080.",
+          "weight": "8%",
+          "solution": "apiVersion: networking.k8s.io/v1\nkind: Ingress\nmetadata:\n  name: my-ingress\nspec:\n  rules:\n  - host: cka-exam.com\n    http:\n      paths:\n      - path: /app1\n        pathType: Prefix\n        backend:\n          service:\n            name: app1-service\n            port:\n              number: 80\n      - path: /app2\n        pathType: Prefix\n        backend:\n          service:\n            name: app2-service\n            port:\n              number: 8080"
         },
         {
           "id": "q6",
-          "statement": "Create a role named 'pod-reader' in the 'default' namespace that allows users to 'get', 'watch', and 'list' pods.",
+          "statement": "Create a new CronJob named 'backup-job' that runs every night at midnight and creates a backup of a database. The job should use the 'ubuntu' image and run the command 'tar -czf /backups/backup.tar.gz /data'. The job should have a successful jobs history limit of 3 and a failed jobs history limit of 1.",
           "weight": "7%",
-          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: Role\nmetadata:\n  namespace: default\n  name: pod-reader\nrules:\n- apiGroups: [\"\"]\n  resources: [\"pods\"]\n  verbs: [\"get\", \"watch\", \"list\"]"
+          "solution": "apiVersion: batch/v1\nkind: CronJob\nmetadata:\n  name: backup-job\nspec:\n  schedule: \"0 0 * * *\"\n  jobTemplate:\n    spec:\n      template:\n        spec:\n          containers:\n          - name: backup\n            image: ubuntu\n            command:\n            - /bin/sh\n            - -c\n            - tar -czf /backups/backup.tar.gz /data\n          restartPolicy: OnFailure\n  successfulJobsHistoryLimit: 3\n  failedJobsHistoryLimit: 1"
         },
         {
           "id": "q7",
-          "statement": "Create a role binding named 'read-pods' that binds the 'pod-reader' role to the 'jane' user in the 'default' namespace.",
-          "weight": "7%",
-          "solution": "apiVersion: rbac.authorization.k8s.io/v1\nkind: RoleBinding\nmetadata:\n  name: read-pods\n  namespace: default\nsubjects:\n- kind: User\n  name: jane\n  apiGroup: rbac.authorization.k8s.io\nroleRef:\n  kind: Role\n  name: pod-reader\n  apiGroup: rbac.authorization.k8s.io"
+          "statement": "A pod named 'pod-with-taint' is failing to schedule. The pod has a toleration for the taint 'app=blue:NoSchedule'. Find out why the pod is not scheduling and fix the issue.",
+          "weight": "10%",
+          "solution": "# First, describe the pod to see the events\nkubectl describe pod pod-with-taint\n# The events will likely show that there are no nodes that satisfy the pod's scheduling requirements.\n# Next, check the taints on the nodes.\nkubectl get nodes -o custom-columns=NODE:.metadata.name,TAINTS:.spec.taints\n# You will likely find that there are no nodes with the taint 'app=blue:NoSchedule'.\n# To fix this, you can either remove the toleration from the pod or add the taint to a node.\n# Let's assume we need to add the taint to a node.\nkubectl taint nodes node01 app=blue:NoSchedule"
         },
         {
           "id": "q8",
-          "statement": "Create a config map named 'app-config' with a key 'app.properties' and a value of 'color=blue'.",
-          "weight": "4%",
-          "solution": "apiVersion: v1\nkind: ConfigMap\nmetadata:\n  name: app-config\ndata:\n  app.properties: |\n    color=blue"
+          "statement": "Create a new PodSecurityPolicy named 'restricted-psp' that prevents pods from running as root and requires a read-only root filesystem.",
+          "weight": "8%",
+          "solution": "apiVersion: policy/v1beta1\nkind: PodSecurityPolicy\nmetadata:\n  name: restricted-psp\nspec:\n  privileged: false\n  runAsUser:\n    rule: 'MustRunAsNonRoot'\n  fsGroup:\n    rule: 'RunAsAny'\n  supplementalGroups:\n    rule: 'RunAsAny'\n  seLinux:\n    rule: 'RunAsAny'\n  volumes:\n  - 'configMap'\n  - 'emptyDir'\n  - 'persistentVolumeClaim'\n  - 'secret'\n  - 'downwardAPI'\n  readOnlyRootFilesystem: true"
         },
         {
           "id": "q9",
-          "statement": "Create a secret named 'db-secret' with a key 'password' and a value of 'supersecret'.",
-          "weight": "4%",
-          "solution": "apiVersion: v1\nkind: Secret\nmetadata:\n  name: db-secret\ntype: Opaque\ndata:\n  password: c3VwZXJzZWNyZXQ="
+          "statement": "Create a new DaemonSet named 'fluentd-agent' that runs a pod on every node in the cluster. The pod should use the 'fluent/fluentd:v1.14.5-debian-1.0' image.",
+          "weight": "7%",
+          "solution": "apiVersion: apps/v1\nkind: DaemonSet\nmetadata:\n  name: fluentd-agent\nspec:\n  selector:\n    matchLabels:\n      name: fluentd-agent\n  template:\n    metadata:\n      labels:\n        name: fluentd-agent\n    spec:\n      terminationGracePeriodSeconds: 30\n      containers:\n      - name: fluentd\n        image: fluent/fluentd:v1.14.5-debian-1.0"
         },
         {
           "id": "q10",
-          "statement": "Create a pod named 'ubuntu-sleeper' that uses the 'ubuntu' image and runs the command 'sleep 3600'.",
+          "statement": "You need to perform maintenance on a node named 'node02'. Cordon the node to prevent new pods from being scheduled on it, and then drain the existing workloads from the node.",
           "weight": "5%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: ubuntu-sleeper\nspec:\n  containers:\n  - name: ubuntu\n    image: ubuntu\n    command: [\"sleep\", \"3600\"]"
+          "solution": "kubectl cordon node02\nkubectl drain node02 --ignore-daemonsets"
         },
         {
           "id": "q11",
-          "statement": "Get the logs for the 'ubuntu-sleeper' pod.",
-          "weight": "2%",
-          "solution": "kubectl logs ubuntu-sleeper"
+          "statement": "Create a new StorageClass named 'fast-storage' that uses the 'kubernetes.io/gce-pd' provisioner and has a 'type' of 'pd-ssd'.",
+          "weight": "6%",
+          "solution": "apiVersion: storage.k8s.io/v1\nkind: StorageClass\nmetadata:\n  name: fast-storage\nprovisioner: kubernetes.io/gce-pd\nparameters:\n  type: pd-ssd"
         },
         {
           "id": "q12",
-          "statement": "Create a network policy named 'default-deny' in the 'default' namespace that denies all ingress traffic.",
-          "weight": "8%",
-          "solution": "apiVersion: networking.k8s.io/v1\nkind: NetworkPolicy\nmetadata:\n  name: default-deny\n  namespace: default\nspec:\n  podSelector: {}\n  policyTypes:\n  - Ingress"
+          "statement": "Create a new PersistentVolumeClaim named 'my-pvc-fast' that requests 10Gi of storage and uses the 'fast-storage' StorageClass.",
+          "weight": "4%",
+          "solution": "apiVersion: v1\nkind: PersistentVolumeClaim\nmetadata:\n  name: my-pvc-fast\nspec:\n  accessModes:\n    - ReadWriteOnce\n  storageClassName: fast-storage\n  resources:\n    requests:\n      storage: 10Gi"
         },
         {
           "id": "q13",
-          "statement": "Scale the 'web-server' deployment to 5 replicas.",
-          "weight": "5%",
-          "solution": "kubectl scale deployment web-server --replicas=5"
+          "statement": "A deployment named 'broken-deployment' is failing to create pods. The deployment is trying to use a service account named 'non-existent-sa'. Find the cause of the issue and fix it.",
+          "weight": "10%",
+          "solution": "# First, describe the deployment to see the events\nkubectl describe deployment broken-deployment\n# The events will likely show that the service account 'non-existent-sa' does not exist.\n# To fix this, you can either create the service account or change the deployment to use an existing service account.\n# Let's create the service account.\nkubectl create serviceaccount non-existent-sa"
         },
         {
           "id": "q14",
-          "statement": "Taint the node 'node01' with the key 'app' and value 'blue' and the effect 'NoSchedule'.",
-          "weight": "6%",
-          "solution": "kubectl taint nodes node01 app=blue:NoSchedule"
+          "statement": "Create a new pod named 'pod-with-affinity' that has a node affinity rule that prefers to be scheduled on nodes with the label 'disktype=ssd'.",
+          "weight": "8%",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-affinity\nspec:\n  affinity:\n    nodeAffinity:\n      preferredDuringSchedulingIgnoredDuringExecution:\n      - weight: 1\n        preference:\n          matchExpressions:\n          - key: disktype\n            operator: In\n            values:\n            - ssd\n  containers:\n  - name: my-container\n    image: busybox\n    command: [\"sleep\", \"3600\"]"
         },
         {
           "id": "q15",
-          "statement": "Create a static pod on node 'node01' that runs the 'nginx' image.",
-          "weight": "9%",
-          "solution": "On node01, create a file in /etc/kubernetes/manifests/static-web.yaml with the following content:\n\napiVersion: v1\nkind: Pod\nmetadata:\n  name: static-web\n  labels:\n    role: myrole\nspec:\n  containers:\n    - name: web\n      image: nginx\n      ports:\n        - name: web\n          containerPort: 80\n          protocol: TCP"
+          "statement": "Backup the etcd database for a kubeadm-created cluster. The etcd certificates are located in '/etc/kubernetes/pki/etcd'. The backup should be saved to '/tmp/etcd-backup.db'.",
+          "weight": "10%",
+          "solution": "ETCDCTL_API=3 etcdctl snapshot save /tmp/etcd-backup.db \
+--endpoints=https://[127.0.0.1]:2379 \
+--cacert=/etc/kubernetes/pki/etcd/ca.crt \
+--cert=/etc/kubernetes/pki/etcd/server.crt \
+--key=/etc/kubernetes/pki/etcd/server.key"
         }
       ]
     }

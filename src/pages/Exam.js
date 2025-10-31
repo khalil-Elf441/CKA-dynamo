@@ -45,13 +45,10 @@ const Exam = () => {
           <h4>Question (Weight: {q.weight})</h4>
           <p>{q.statement}</p>
           <div className="terminal-container">
-            <div className="terminal">
-              {/* This is a simulated terminal. In a real app, this would be a component like xterm.js */}
-              <p># Enter your commands here...</p>
-            </div>
+            <textarea className="terminal" placeholder="# Enter your commands here..."></textarea>
           </div>
           <Button variant="primary" onClick={() => toggleSolution(q.id)} className="mt-2">
-            {showSolution[q.id] ? 'Hide Solution' : 'Hide Solution'}
+            {showSolution[q.id] ? 'Hide Solution' : 'Show Solution'}
           </Button>
           {showSolution[q.id] && (
             <div className="solution mt-3">
