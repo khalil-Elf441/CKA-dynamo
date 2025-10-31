@@ -71,7 +71,7 @@
           "id": "q11",
           "statement": "Create a new pod named 'pod-with-volume' that mounts a volume named 'my-volume' at '/my-data'. The volume should be an 'emptyDir' volume.",
           "weight": "8%",
-          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-volume\n      mountPath: /my-data\n  volumes:\n  - name: my-volume\n    emptyDir: {}\n        }",
+          "solution": "apiVersion: v1\nkind: Pod\nmetadata:\n  name: pod-with-volume\nspec:\n  containers:\n  - name: my-container\n    image: busybox\n    command: [ \"sh\", \"-c\", \"while true; do echo hello; sleep 10;done\" ]\n    volumeMounts:\n    - name: my-volume\n      mountPath: /my-data\n  volumes:\n  - name: my-volume\n    emptyDir: {}",
         {
           "id": "q12",
           "statement": "Create a new pod named 'pod-with-hostpath-volume' that mounts a volume named 'my-hostpath-volume' at '/my-host-data'. The volume should be a 'hostPath' volume with a path of '/data'.",
